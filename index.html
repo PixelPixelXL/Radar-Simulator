@@ -97,6 +97,14 @@
 
         <!-- TELA ÚNICA DO RADAR -->
         <div id="visuals">
+            <div id="radar-toolbar">
+                <div>
+                    <strong>Estação:</strong>
+                    <span id="radar-station">KTLX — Oklahoma City, OK</span>
+                    <small id="radar-station-coords">35.3334° N, 97.2778° W</small>
+                </div>
+                <button id="btn-radar-picker" type="button">🌐 Escolher radar</button>
+            </div>
             <div class="screen">
                 <h3 id="radar-title">Display Principal: Refletividade (dBZ)</h3>
                 <div id="wrap">
@@ -119,6 +127,19 @@
         document.body.appendChild(b);
     });
     </script>
-    <script src="js/app.js?v=4"></script>
+    <div id="mapa-modal" class="map-modal" hidden role="dialog" aria-modal="true" aria-labelledby="mapa-title">
+        <div class="map-dialog">
+            <div class="map-dialog-head">
+                <h2 id="mapa-title">Selecionar estação NEXRAD</h2>
+                <button id="sm-close" type="button" aria-label="Fechar">✕</button>
+            </div>
+            <div id="sm-regions" class="map-regions" aria-label="Regiões"></div>
+            <canvas id="sitemap" aria-label="Mapa das estações de radar"></canvas>
+            <p id="sm-label" role="status">Carregando estações...</p>
+        </div>
+    </div>
+    <script src="js/radars.js?v=5"></script>
+    <script src="js/map.js?v=5"></script>
+    <script src="js/app.js?v=5"></script>
 </body>
 </html>
