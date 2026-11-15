@@ -105,6 +105,12 @@
                 </div>
                 <button id="btn-radar-picker" type="button">🌐 Escolher radar</button>
             </div>
+            <section id="overview-panel" aria-labelledby="overview-title">
+                <div class="overview-head"><h3 id="overview-title">Mapa geral — estações NEXRAD</h3><span>Visão de localização</span></div>
+                <div id="overview-regions" class="overview-regions" aria-label="Regiões do mapa"></div>
+                <canvas id="overview-map" aria-label="Mapa geográfico com estações NEXRAD e anéis ilustrativos de alcance"></canvas>
+                <p id="overview-status" role="status">Carregando estações...</p>
+            </section>
             <div class="screen">
                 <h3 id="radar-title">Display Principal: Refletividade (dBZ)</h3>
                 <div id="wrap">
@@ -141,5 +147,6 @@
     <script src="js/radars.js?v=5"></script>
     <script src="js/map.js?v=5"></script>
     <script src="js/app.js?v=5"></script>
+    <script src="js/overview-map.js?v=1"></script>
 </body>
 </html>

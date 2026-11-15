@@ -432,6 +432,12 @@
 
     /* ---------- estação NEXRAD selecionada ---------- */
     let selectedRadar = "KTLX";
+    window.RadarSimulatorState = () => {
+        const station = (window.RADARS || []).find(r => r[0] === selectedRadar);
+        return station ? { radar: station[0], lat: station[2], lon: station[3],
+            stormX: sx, stormY: sy, dbz: +sl.dbz.value, rotation: sl.rot.value === "1",
+            wind: +sl.w.value, motion: +sl.m.value } : null;
+    };
     function selectRadar(id) {
         const station = (window.RADARS || []).find(r => r[0] === id);
         if (!station) return;

@@ -196,3 +196,15 @@ select:disabled { opacity: 0.45; }
     #radar-toolbar { align-items: flex-start; flex-direction: column; }
     #btn-radar-picker { width: 100%; }
 }
+
+/* Mapa geral de estações NEXRAD */
+#overview-panel { min-width:0; background:#101820; border:1px solid #2b3b46; border-radius:6px; padding:10px; display:flex; flex-direction:column; gap:8px; }
+.overview-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.overview-head h3 { color:#baffba; font-size:.9rem; text-transform:uppercase; }
+.overview-head span { color:#81929d; font-size:.7rem; }
+.overview-regions { display:flex; flex-wrap:wrap; gap:5px; }
+.overview-regions button { padding:5px 9px; font-size:.72rem; }
+.overview-regions button[aria-pressed="true"] { background:#17452c; border-color:#00c96b; color:#baffba; }
+#overview-map { display:block; width:100%; height:clamp(260px,42vh,480px); background:#07111a; border:1px solid #30414c; border-radius:4px; touch-action:pan-y; }
+#overview-status { color:#9eb2bd; font-size:.72rem; line-height:1.4; min-height:1.2em; }
+@media(max-width:800px) { #overview-map { height: min(58vw,390px); min-height:230px; } .overview-head { align-items:flex-start; flex-direction:column; } }
