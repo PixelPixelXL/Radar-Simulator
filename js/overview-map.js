@@ -4,6 +4,9 @@
   const canvas = document.getElementById("overview-map");
   const status = document.getElementById("overview-status");
   const regionBar = document.getElementById("overview-regions");
+  const layerRings = document.getElementById("layer-rings");
+  const layerLinks = document.getElementById("layer-links");
+  const layerLabels = document.getElementById("layer-labels");
   if (!canvas || !window.RADARS) return;
   const ctx = canvas.getContext("2d");
   const regions = {
@@ -47,13 +50,15 @@
       const lon=r[3],lat=r[2]; if(lon<x0||lon>x1||lat<y0||lat>y1)continue;
       const x=X(lon),y=Y(lat); points.push({r,x,y});
       // Anel de 230 km meramente ilustrativo; não representa cobertura operacional real.
-      const rx=230/111.32*scale, ry=230/111.32*scale;
-      ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);
-      ctx.fillStyle="rgba(0,220,110,.035)";ctx.fill();
-      ctx.strokeStyle="rgba(0,220,110,.20)";ctx.lineWidth=1*dpr;ctx.stroke();
+      if (!layerRings || layerRings.checked) {
+        const rx=230/111.32*scale, ry=230/111.32*scale;
+        ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);
+        ctx.fillStyle="rgba(0,220,110,.035)";ctx.fill();
+        ctx.strokeStyle="rgba(0,220,110,.20)";ctx.lineWidth=1*dpr;ctx.stroke();
+      }
       ctx.beginPath();ctx.arc(x,y,r[0]===selected?5*dpr:3*dpr,0,Math.PI*2);
       ctx.fillStyle=r[0]===selected?"#ffd34e":"#00e676";ctx.fill();
-      if(region!=="Mundo" && scale>5) {ctx.font=(10*dpr)+"px monospace";ctx.fillStyle="#d8e6ed";ctx.fillText(r[0],x+5*dpr,y-5*dpr);}
+      if((!layerLabels || layerLabels.checked) && region!=="Mundo" && scale>5) {ctx.font=(10*dpr)+"px monospace";ctx.fillStyle="#d8e6ed";ctx.fillText(r[0],x+5*dpr,y-5*dpr);}
     }
     // Eco sintético global: as estações próximas contribuem para a composição ilustrativa.
     let compositeStations = [];
@@ -70,7 +75,7 @@
         compositeStations=window.RADARS.filter(r=>haversineKm(r[2],r[3],stormLat,stormLon)<=230);
         const ex=X(stormLon), ey=Y(stormLat), radius=sim.dbz>=60?29:sim.dbz>=45?24:18;
         // Mostra a geometria da contribuição de cada estação até o eco comum.
-        for(const station of compositeStations){
+        if (!layerLinks || layerLinks.checked) for(const station of compositeStations){
           const lon=station[3],lat=station[2];
           if(lon<x0||lon>x1||lat<y0||lat>y1)continue;
           const px=X(lon),py=Y(lat);
@@ -78,8 +83,10 @@
           ctx.strokeStyle="rgba(70,220,255,.42)";ctx.lineWidth=1.5*dpr;ctx.setLineDash([5*dpr,4*dpr]);ctx.stroke();ctx.setLineDash([]);
           ctx.beginPath();ctx.arc(px,py,6*dpr,0,Math.PI*2);
           ctx.strokeStyle="#46dcff";ctx.lineWidth=1.8*dpr;ctx.stroke();
-          ctx.font="bold "+(9*dpr)+"px monospace";ctx.fillStyle="#8beaff";
-          ctx.fillText(station[0],px+7*dpr,py+12*dpr);
+          if (!layerLabels || layerLabels.checked) {
+            ctx.font="bold "+(9*dpr)+"px monospace";ctx.fillStyle="#8beaff";
+            ctx.fillText(station[0],px+7*dpr,py+12*dpr);
+          }
         }
         const color=sim.dbz>=60?"rgba(235,35,190,0.68)":sim.dbz>=45?"rgba(255,105,20,0.68)":sim.dbz>=30?"rgba(255,220,35,0.65)":"rgba(45,190,90,0.58)";
         // Aros mostram quantas estações participam; alcance de 230 km é apenas didático.
@@ -108,6 +115,7 @@
   }
   regionBar.innerHTML=Object.keys(regions).map(k=>'<button type="button" data-region="'+k+'"'+(k===region?' aria-pressed="true"':'')+'>'+k+'</button>').join("");
   regionBar.addEventListener("click",e=>{const b=e.target.closest("button[data-region]");if(!b)return;region=b.dataset.region;regionBar.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));draw();});
+  [layerRings,layerLinks,layerLabels].filter(Boolean).forEach(input=>input.addEventListener("change",draw));
   canvas.addEventListener("pointermove",e=>{
     const rect=canvas.getBoundingClientRect(),k=canvas.width/rect.width,x=(e.clientX-rect.left)*k,y=(e.clientY-rect.top)*k;
     let best=null,dist=14*k;for(const p of points){const d=Math.hypot(p.x-x,p.y-y);if(d<dist){dist=d;best=p;}}
