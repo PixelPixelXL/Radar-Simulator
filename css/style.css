@@ -149,3 +149,50 @@ select:disabled { opacity: 0.45; }
 .pal-swatch { width: 12px; height: 18px; border: 1px solid #ffffff22; }
 #pal-status { color: #9fcf9f; font-size: 0.72rem; line-height: 1.3; overflow-wrap: anywhere; }
 #btn-pal-reset { padding: 6px; font-size: 0.75rem; }
+
+
+/* Barra de estação e seletor de radares */
+#radar-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 12px;
+    background: #101820;
+    border: 1px solid #2b3b46;
+    border-radius: 6px;
+    color: #dce8ee;
+    font-size: 0.82rem;
+}
+#radar-toolbar strong { color: #8fa2b8; }
+#radar-station { color: #baffba; font-weight: bold; }
+#radar-station-coords { display: block; margin-top: 3px; color: #81929d; font-size: 0.72rem; }
+#btn-radar-picker { padding: 8px 12px; white-space: nowrap; border-color: #397342; background: #17351b; }
+.map-modal[hidden] { display: none; }
+.map-modal {
+    position: fixed; inset: 0; z-index: 100;
+    display: grid; place-items: center;
+    padding: 16px; background: rgba(0,0,0,0.82);
+}
+.map-dialog {
+    width: min(900px, 100%); max-height: min(90vh, 760px);
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 14px; overflow: auto;
+    background: #101820; border: 1px solid #40515d; border-radius: 8px;
+    box-shadow: 0 18px 60px #000b;
+}
+.map-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.map-dialog-head h2 { color: #baffba; font-size: 1rem; }
+#sm-close { min-width: 36px; min-height: 36px; }
+.map-regions { display: flex; flex-wrap: wrap; gap: 6px; }
+.map-regions button { padding: 6px 10px; font-size: 0.75rem; }
+#sitemap {
+    display: block; width: 100%; height: min(52vh, 480px);
+    background: #04080c; border: 1px solid #30414c; border-radius: 4px;
+    touch-action: manipulation; cursor: crosshair;
+}
+#sm-label { min-height: 1.2em; color: #b8c7d0; font-size: 0.78rem; }
+@media (max-width: 800px) {
+    #radar-toolbar { align-items: flex-start; flex-direction: column; }
+    #btn-radar-picker { width: 100%; }
+}
