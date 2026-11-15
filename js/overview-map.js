@@ -69,6 +69,18 @@
         };
         compositeStations=window.RADARS.filter(r=>haversineKm(r[2],r[3],stormLat,stormLon)<=230);
         const ex=X(stormLon), ey=Y(stormLat), radius=sim.dbz>=60?29:sim.dbz>=45?24:18;
+        // Mostra a geometria da contribuição de cada estação até o eco comum.
+        for(const station of compositeStations){
+          const lon=station[3],lat=station[2];
+          if(lon<x0||lon>x1||lat<y0||lat>y1)continue;
+          const px=X(lon),py=Y(lat);
+          ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(ex,ey);
+          ctx.strokeStyle="rgba(70,220,255,.42)";ctx.lineWidth=1.5*dpr;ctx.setLineDash([5*dpr,4*dpr]);ctx.stroke();ctx.setLineDash([]);
+          ctx.beginPath();ctx.arc(px,py,6*dpr,0,Math.PI*2);
+          ctx.strokeStyle="#46dcff";ctx.lineWidth=1.8*dpr;ctx.stroke();
+          ctx.font="bold "+(9*dpr)+"px monospace";ctx.fillStyle="#8beaff";
+          ctx.fillText(station[0],px+7*dpr,py+12*dpr);
+        }
         const color=sim.dbz>=60?"rgba(235,35,190,0.68)":sim.dbz>=45?"rgba(255,105,20,0.68)":sim.dbz>=30?"rgba(255,220,35,0.65)":"rgba(45,190,90,0.58)";
         // Aros mostram quantas estações participam; alcance de 230 km é apenas didático.
         if(compositeStations.length>1){
