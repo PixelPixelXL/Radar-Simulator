@@ -55,14 +55,26 @@
       ctx.fillStyle=r[0]===selected?"#ffd34e":"#00e676";ctx.fill();
       if(region!=="Mundo" && scale>5) {ctx.font=(10*dpr)+"px monospace";ctx.fillStyle="#d8e6ed";ctx.fillText(r[0],x+5*dpr,y-5*dpr);}
     }
-    // Eco sintético do modelo ativo, convertido da posição relativa ao radar para coordenadas geográficas.
+    // Eco sintético global: as estações próximas contribuem para a composição ilustrativa.
+    let compositeStations = [];
     const sim = window.RadarSimulatorState && window.RadarSimulatorState();
     if (sim) {
       const stormLat = sim.lat + sim.stormY / 111.32;
       const stormLon = sim.lon + sim.stormX / (111.32 * Math.max(.15, Math.cos(stormLat * D)));
       if (stormLon >= x0 && stormLon <= x1 && stormLat >= y0 && stormLat <= y1) {
+        const haversineKm = (lat1,lon1,lat2,lon2) => {
+          const a1=lat1*D,a2=lat2*D, da=(lat2-lat1)*D,dl=(lon2-lon1)*D;
+          const h=Math.sin(da/2)**2+Math.cos(a1)*Math.cos(a2)*Math.sin(dl/2)**2;
+          return 6371*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+        };
+        compositeStations=window.RADARS.filter(r=>haversineKm(r[2],r[3],stormLat,stormLon)<=230);
         const ex=X(stormLon), ey=Y(stormLat), radius=sim.dbz>=60?29:sim.dbz>=45?24:18;
         const color=sim.dbz>=60?"rgba(235,35,190,0.68)":sim.dbz>=45?"rgba(255,105,20,0.68)":sim.dbz>=30?"rgba(255,220,35,0.65)":"rgba(45,190,90,0.58)";
+        // Aros mostram quantas estações participam; alcance de 230 km é apenas didático.
+        if(compositeStations.length>1){
+          ctx.beginPath();ctx.arc(ex,ey,(radius+7+compositeStations.length*2)*dpr,0,Math.PI*2);
+          ctx.strokeStyle="rgba(80,220,255,.8)";ctx.lineWidth=2*dpr;ctx.stroke();
+        }
         ctx.save(); ctx.translate(ex,ey); ctx.rotate(-.28);
         ctx.beginPath();
         for(let i=0;i<=48;i++){
@@ -79,7 +91,8 @@
         ctx.fillText("ECO SIMULADO · "+Math.round(sim.dbz)+" dBZ",ex+8*dpr,ey-9*dpr);
       }
     }
-    status.textContent=points.length+" estações nesta região · eco sintético acompanha a tempestade do radar individual · não é mosaico de dados observados.";
+    const contributors=compositeStations.length?compositeStations.map(r=>r[0]).join(", "):"nenhuma estação dentro do alcance ilustrativo";
+    status.textContent=points.length+" estações na região · composição SIMULADA: "+compositeStations.length+" contribuição(ões) ("+contributors+") · alcance nominal didático de 230 km; não são dados observados nem cobertura operacional.";
   }
   regionBar.innerHTML=Object.keys(regions).map(k=>'<button type="button" data-region="'+k+'"'+(k===region?' aria-pressed="true"':'')+'>'+k+'</button>').join("");
   regionBar.addEventListener("click",e=>{const b=e.target.closest("button[data-region]");if(!b)return;region=b.dataset.region;regionBar.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));draw();});
