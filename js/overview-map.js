@@ -105,7 +105,17 @@
   canvas.addEventListener("click",e=>{
     const rect=canvas.getBoundingClientRect(),k=canvas.width/rect.width,x=(e.clientX-rect.left)*k,y=(e.clientY-rect.top)*k;
     let best=null,dist=14*k;for(const p of points){const d=Math.hypot(p.x-x,p.y-y);if(d<dist){dist=d;best=p;}}
-    if(best){selected=best.r[0];draw();status.textContent=best.r[0]+" — "+best.r[1]+" identificado no mapa. Use “Escolher radar” para carregar esta estação no radar individual.";}
+    if(best){
+      selected=best.r[0];
+      if(typeof window.selectRadarStation==="function"){
+        window.selectRadarStation(selected);
+        draw();
+        status.textContent=selected+" — "+best.r[1]+" carregado no radar individual.";
+      } else {
+        draw();
+        status.textContent=selected+" — "+best.r[1]+" selecionado no mapa; o seletor direto ainda não está disponível.";
+      }
+    }
   });
   if(typeof ResizeObserver!=="undefined")new ResizeObserver(draw).observe(canvas);else window.addEventListener("resize",draw);
   draw();
