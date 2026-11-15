@@ -208,3 +208,11 @@ select:disabled { opacity: 0.45; }
 #overview-map { display:block; width:100%; height:clamp(260px,42vh,480px); background:#07111a; border:1px solid #30414c; border-radius:4px; touch-action:pan-y; }
 #overview-status { color:#9eb2bd; font-size:.72rem; line-height:1.4; min-height:1.2em; }
 @media(max-width:800px) { #overview-map { height: min(58vw,390px); min-height:230px; } .overview-head { align-items:flex-start; flex-direction:column; } }
+
+
+/* Controles de camadas do mapa geral */
+.overview-layers { display:flex; flex-wrap:wrap; gap:8px 16px; padding:7px 9px; background:#0a131a; border:1px solid #263b48; border-radius:4px; }
+.overview-layers label { display:flex; align-items:center; gap:6px; color:#b8c7d0; font-size:.72rem; cursor:pointer; }
+.overview-layers input { accent-color:#00d978; }
+.overview-layers input:focus-visible { outline:2px solid #00ff88; outline-offset:3px; }
+@media(max-width:800px) { .overview-layers { flex-direction:column; gap:7px; } }
