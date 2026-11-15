@@ -96,4 +96,5 @@
   });
   if(typeof ResizeObserver!=="undefined")new ResizeObserver(draw).observe(canvas);else window.addEventListener("resize",draw);
   draw();
+  window.setInterval(draw, 1000);
 })();
