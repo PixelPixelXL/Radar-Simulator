@@ -336,6 +336,23 @@
         const s = cv.width, c = s / 2, pk = c / RANGE, dpr = s / Math.max(1, cv.clientWidth);
         cx.clearRect(0, 0, s, s);
         cx.drawImage(buf, 0, 0);
+
+        // Fronteiras geográficas em coordenadas locais (km), centradas na estação selecionada.
+        const mapPaths = window.RadarMap && window.RadarMap.paths;
+        if (mapPaths) {
+            cx.save();
+            cx.beginPath(); cx.arc(c, c, c - dpr, 0, TP); cx.clip();
+            cx.setTransform(pk, 0, 0, -pk, c, c);
+            cx.lineJoin = "round";
+            cx.strokeStyle = "rgba(115,145,165,0.58)";
+            cx.lineWidth = 0.22;
+            cx.stroke(mapPaths.world);
+            cx.strokeStyle = "rgba(105,130,145,0.72)";
+            cx.lineWidth = 0.12;
+            cx.stroke(mapPaths.states);
+            cx.restore();
+        }
+
         cx.strokeStyle = "rgba(143,162,184,0.35)"; cx.lineWidth = dpr; cx.fillStyle = "#8fa2b8";
         cx.font = 11 * dpr + "px 'Courier New', monospace";
         for (let R = 50; R <= 150; R += 50) {
@@ -412,6 +429,29 @@
         legend();
         dirty = true;
     }
+
+    /* ---------- estação NEXRAD selecionada ---------- */
+    let selectedRadar = "KTLX";
+    function selectRadar(id) {
+        const station = (window.RADARS || []).find(r => r[0] === id);
+        if (!station) return;
+        selectedRadar = station[0];
+        const name = $("radar-station");
+        const coords = $("radar-station-coords");
+        if (name) name.textContent = station[0] + " — " + station[1];
+        if (coords) coords.textContent = Math.abs(station[2]).toFixed(4) + "° " +
+            (station[2] >= 0 ? "N" : "S") + ", " + Math.abs(station[3]).toFixed(4) + "° " +
+            (station[3] >= 0 ? "E" : "W");
+        if (window.RadarMap) window.RadarMap.center(station[2], station[3]);
+        dirty = true;
+    }
+    const picker = $("btn-radar-picker");
+    if (picker) picker.addEventListener("click", () => {
+        if (window.RadarMap && window.RADARS) {
+            window.RadarMap.openPicker(selectedRadar, selectRadar);
+        }
+    });
+    selectRadar(selectedRadar);
 
     /* ---------- interação ---------- */
     document.querySelectorAll(".btn-product").forEach(b => b.addEventListener("click", () => setProduct(b.dataset.p)));
