@@ -1,6 +1,12 @@
-# 🌩️ USA Weather Radar & Warning Simulator
+# 🌩️ Radar-Simulator — Simulador de Radar Meteorológico
 
 Um simulador interativo de radar meteorológico tático baseado no ecossistema do **NWS (National Weather Service)** dos Estados Unidos. Este projeto permite manipular variáveis de células de tempestades em tempo real e gerenciar a emissão de alertas severos baseados em critérios meteorológicos reais.
+
+## 🗺️ Estações NEXRAD e mapa
+
+O simulador inclui um catálogo de estações NEXRAD com identificador, localidade e coordenadas. Use **Escolher radar** para abrir o mapa, filtrar por região e selecionar uma estação. O mapa de fundo usa dados TopoJSON carregados do jsDelivr; se a conexão falhar, os produtos sintéticos do radar continuam funcionando sem as fronteiras.
+
+A estação selecionada define o centro geográfico das fronteiras desenhadas sobre o display. **Importante:** selecionar uma estação não carrega dados meteorológicos reais. Os ecos, velocidades, produtos e alertas continuam sendo gerados pelo modelo sintético local.
 
 ## 🕹️ Como o Jogo Funciona
 
@@ -24,7 +30,7 @@ O simulador avalia as condições físicas da tempestade em tempo real e emite a
 ## 🛠️ Tecnologias Utilizadas
 
 - **Vanilla JavaScript (ES6+):** Processamento matemático de matrizes de pixels e lógica dos alertas.
-- **HTML5 Canvas:** Renderização gráfica iterativa a 60 FPS com efeito clássico de linha giratória de varredura (*Sweep*).
+- **HTML5 Canvas:** Renderização gráfica iterativa com efeito clássico de linha giratória de varredura (*Sweep*), anéis de alcance e fronteiras geográficas.
 - **CSS3 Dark-Mode:** Interface tática inspirada em centros de meteorologia severa reais.
 ---
 Desenvolvido como um projeto de simulação científica de código aberto. Sinta-se livre para clonar e explorar as dinâmicas físicas!
