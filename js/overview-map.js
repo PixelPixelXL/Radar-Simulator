@@ -47,7 +47,7 @@
       const lon=r[3],lat=r[2]; if(lon<x0||lon>x1||lat<y0||lat>y1)continue;
       const x=X(lon),y=Y(lat); points.push({r,x,y});
       // Anel de 230 km meramente ilustrativo; não representa cobertura operacional real.
-      const rx=230/(111.32*Math.max(.15,Math.cos(lat*D)))*scale*cs, ry=230/111.32*scale;
+      const rx=230/111.32*scale, ry=230/111.32*scale;
       ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);
       ctx.fillStyle="rgba(0,220,110,.035)";ctx.fill();
       ctx.strokeStyle="rgba(0,220,110,.20)";ctx.lineWidth=1*dpr;ctx.stroke();
@@ -68,7 +68,7 @@
   canvas.addEventListener("click",e=>{
     const rect=canvas.getBoundingClientRect(),k=canvas.width/rect.width,x=(e.clientX-rect.left)*k,y=(e.clientY-rect.top)*k;
     let best=null,dist=14*k;for(const p of points){const d=Math.hypot(p.x-x,p.y-y);if(d<dist){dist=d;best=p;}}
-    if(best){selected=best.r[0];draw();status.textContent=best.r[0]+" — "+best.r[1]+" selecionado no mapa. Use “Escolher radar” para carregar esta estação no radar individual.";}
+    if(best){selected=best.r[0];draw();status.textContent=best.r[0]+" — "+best.r[1]+" identificado no mapa. Use “Escolher radar” para carregar esta estação no radar individual.";}
   });
   if(typeof ResizeObserver!=="undefined")new ResizeObserver(draw).observe(canvas);else window.addEventListener("resize",draw);
   draw();
