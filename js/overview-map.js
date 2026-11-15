@@ -55,7 +55,31 @@
       ctx.fillStyle=r[0]===selected?"#ffd34e":"#00e676";ctx.fill();
       if(region!=="Mundo" && scale>5) {ctx.font=(10*dpr)+"px monospace";ctx.fillStyle="#d8e6ed";ctx.fillText(r[0],x+5*dpr,y-5*dpr);}
     }
-    status.textContent=points.length+" estações nesta região · anéis de 230 km ilustrativos · selecione a estação no botão “Escolher radar” para abrir seu radar individual.";
+    // Eco sintético do modelo ativo, convertido da posição relativa ao radar para coordenadas geográficas.
+    const sim = window.RadarSimulatorState && window.RadarSimulatorState();
+    if (sim) {
+      const stormLat = sim.lat + sim.stormY / 111.32;
+      const stormLon = sim.lon + sim.stormX / (111.32 * Math.max(.15, Math.cos(stormLat * D)));
+      if (stormLon >= x0 && stormLon <= x1 && stormLat >= y0 && stormLat <= y1) {
+        const ex=X(stormLon), ey=Y(stormLat), radius=sim.dbz>=60?29:sim.dbz>=45?24:18;
+        const color=sim.dbz>=60?"rgba(235,35,190,0.68)":sim.dbz>=45?"rgba(255,105,20,0.68)":sim.dbz>=30?"rgba(255,220,35,0.65)":"rgba(45,190,90,0.58)";
+        ctx.save(); ctx.translate(ex,ey); ctx.rotate(-.28);
+        ctx.beginPath();
+        for(let i=0;i<=48;i++){
+          const a=i/48*Math.PI*2, wobble=1+.13*Math.sin(3*a)+.08*Math.cos(5*a);
+          const px=Math.cos(a)*radius*wobble/111.32*scale;
+          const py=Math.sin(a)*radius*wobble/111.32*scale;
+          if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+        }
+        ctx.closePath();ctx.fillStyle=color;ctx.fill();
+        ctx.strokeStyle="rgba(255,255,255,.8)";ctx.lineWidth=1.2*dpr;ctx.stroke();
+        if(sim.rotation){ctx.beginPath();ctx.arc(0,0,5*dpr,0,Math.PI*2);ctx.strokeStyle="#fff";ctx.lineWidth=1.5*dpr;ctx.stroke();}
+        ctx.restore();
+        ctx.font="bold "+(10*dpr)+"px monospace";ctx.fillStyle="#fff";
+        ctx.fillText("ECO SIMULADO · "+Math.round(sim.dbz)+" dBZ",ex+8*dpr,ey-9*dpr);
+      }
+    }
+    status.textContent=points.length+" estações nesta região · eco sintético acompanha a tempestade do radar individual · não é mosaico de dados observados.";
   }
   regionBar.innerHTML=Object.keys(regions).map(k=>'<button type="button" data-region="'+k+'"'+(k===region?' aria-pressed="true"':'')+'>'+k+'</button>').join("");
   regionBar.addEventListener("click",e=>{const b=e.target.closest("button[data-region]");if(!b)return;region=b.dataset.region;regionBar.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));draw();});
