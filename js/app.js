@@ -451,6 +451,9 @@
         if (window.RadarMap) window.RadarMap.center(station[2], station[3]);
         dirty = true;
     }
+    // API usada pelo mapa geral para carregar uma estação diretamente.
+    window.selectRadarStation = selectRadar;
+
     const picker = $("btn-radar-picker");
     if (picker) picker.addEventListener("click", () => {
         if (window.RadarMap && window.RADARS) {

@@ -4,6 +4,9 @@
   const canvas = document.getElementById("overview-map");
   const status = document.getElementById("overview-status");
   const regionBar = document.getElementById("overview-regions");
+  const layerRings = document.getElementById("layer-rings");
+  const layerLinks = document.getElementById("layer-links");
+  const layerLabels = document.getElementById("layer-labels");
   if (!canvas || !window.RADARS) return;
   const ctx = canvas.getContext("2d");
   const regions = {
@@ -47,22 +50,50 @@
       const lon=r[3],lat=r[2]; if(lon<x0||lon>x1||lat<y0||lat>y1)continue;
       const x=X(lon),y=Y(lat); points.push({r,x,y});
       // Anel de 230 km meramente ilustrativo; não representa cobertura operacional real.
-      const rx=230/111.32*scale, ry=230/111.32*scale;
-      ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);
-      ctx.fillStyle="rgba(0,220,110,.035)";ctx.fill();
-      ctx.strokeStyle="rgba(0,220,110,.20)";ctx.lineWidth=1*dpr;ctx.stroke();
+      if (!layerRings || layerRings.checked) {
+        const rx=230/111.32*scale, ry=230/111.32*scale;
+        ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);
+        ctx.fillStyle="rgba(0,220,110,.035)";ctx.fill();
+        ctx.strokeStyle="rgba(0,220,110,.20)";ctx.lineWidth=1*dpr;ctx.stroke();
+      }
       ctx.beginPath();ctx.arc(x,y,r[0]===selected?5*dpr:3*dpr,0,Math.PI*2);
       ctx.fillStyle=r[0]===selected?"#ffd34e":"#00e676";ctx.fill();
-      if(region!=="Mundo" && scale>5) {ctx.font=(10*dpr)+"px monospace";ctx.fillStyle="#d8e6ed";ctx.fillText(r[0],x+5*dpr,y-5*dpr);}
+      if((!layerLabels || layerLabels.checked) && region!=="Mundo" && scale>5) {ctx.font=(10*dpr)+"px monospace";ctx.fillStyle="#d8e6ed";ctx.fillText(r[0],x+5*dpr,y-5*dpr);}
     }
-    // Eco sintético do modelo ativo, convertido da posição relativa ao radar para coordenadas geográficas.
+    // Eco sintético global: as estações próximas contribuem para a composição ilustrativa.
+    let compositeStations = [];
     const sim = window.RadarSimulatorState && window.RadarSimulatorState();
     if (sim) {
       const stormLat = sim.lat + sim.stormY / 111.32;
       const stormLon = sim.lon + sim.stormX / (111.32 * Math.max(.15, Math.cos(stormLat * D)));
       if (stormLon >= x0 && stormLon <= x1 && stormLat >= y0 && stormLat <= y1) {
+        const haversineKm = (lat1,lon1,lat2,lon2) => {
+          const a1=lat1*D,a2=lat2*D, da=(lat2-lat1)*D,dl=(lon2-lon1)*D;
+          const h=Math.sin(da/2)**2+Math.cos(a1)*Math.cos(a2)*Math.sin(dl/2)**2;
+          return 6371*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+        };
+        compositeStations=window.RADARS.filter(r=>haversineKm(r[2],r[3],stormLat,stormLon)<=230);
         const ex=X(stormLon), ey=Y(stormLat), radius=sim.dbz>=60?29:sim.dbz>=45?24:18;
+        // Mostra a geometria da contribuição de cada estação até o eco comum.
+        if (!layerLinks || layerLinks.checked) for(const station of compositeStations){
+          const lon=station[3],lat=station[2];
+          if(lon<x0||lon>x1||lat<y0||lat>y1)continue;
+          const px=X(lon),py=Y(lat);
+          ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(ex,ey);
+          ctx.strokeStyle="rgba(70,220,255,.42)";ctx.lineWidth=1.5*dpr;ctx.setLineDash([5*dpr,4*dpr]);ctx.stroke();ctx.setLineDash([]);
+          ctx.beginPath();ctx.arc(px,py,6*dpr,0,Math.PI*2);
+          ctx.strokeStyle="#46dcff";ctx.lineWidth=1.8*dpr;ctx.stroke();
+          if (!layerLabels || layerLabels.checked) {
+            ctx.font="bold "+(9*dpr)+"px monospace";ctx.fillStyle="#8beaff";
+            ctx.fillText(station[0],px+7*dpr,py+12*dpr);
+          }
+        }
         const color=sim.dbz>=60?"rgba(235,35,190,0.68)":sim.dbz>=45?"rgba(255,105,20,0.68)":sim.dbz>=30?"rgba(255,220,35,0.65)":"rgba(45,190,90,0.58)";
+        // Aros mostram quantas estações participam; alcance de 230 km é apenas didático.
+        if(compositeStations.length>1){
+          ctx.beginPath();ctx.arc(ex,ey,(radius+7+compositeStations.length*2)*dpr,0,Math.PI*2);
+          ctx.strokeStyle="rgba(80,220,255,.8)";ctx.lineWidth=2*dpr;ctx.stroke();
+        }
         ctx.save(); ctx.translate(ex,ey); ctx.rotate(-.28);
         ctx.beginPath();
         for(let i=0;i<=48;i++){
@@ -79,10 +110,12 @@
         ctx.fillText("ECO SIMULADO · "+Math.round(sim.dbz)+" dBZ",ex+8*dpr,ey-9*dpr);
       }
     }
-    status.textContent=points.length+" estações nesta região · eco sintético acompanha a tempestade do radar individual · não é mosaico de dados observados.";
+    const contributors=compositeStations.length?compositeStations.map(r=>r[0]).join(", "):"nenhuma estação dentro do alcance ilustrativo";
+    status.textContent=points.length+" estações na região · composição SIMULADA: "+compositeStations.length+" contribuição(ões) ("+contributors+") · alcance nominal didático de 230 km; não são dados observados nem cobertura operacional.";
   }
   regionBar.innerHTML=Object.keys(regions).map(k=>'<button type="button" data-region="'+k+'"'+(k===region?' aria-pressed="true"':'')+'>'+k+'</button>').join("");
   regionBar.addEventListener("click",e=>{const b=e.target.closest("button[data-region]");if(!b)return;region=b.dataset.region;regionBar.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));draw();});
+  [layerRings,layerLinks,layerLabels].filter(Boolean).forEach(input=>input.addEventListener("change",draw));
   canvas.addEventListener("pointermove",e=>{
     const rect=canvas.getBoundingClientRect(),k=canvas.width/rect.width,x=(e.clientX-rect.left)*k,y=(e.clientY-rect.top)*k;
     let best=null,dist=14*k;for(const p of points){const d=Math.hypot(p.x-x,p.y-y);if(d<dist){dist=d;best=p;}}
@@ -92,7 +125,17 @@
   canvas.addEventListener("click",e=>{
     const rect=canvas.getBoundingClientRect(),k=canvas.width/rect.width,x=(e.clientX-rect.left)*k,y=(e.clientY-rect.top)*k;
     let best=null,dist=14*k;for(const p of points){const d=Math.hypot(p.x-x,p.y-y);if(d<dist){dist=d;best=p;}}
-    if(best){selected=best.r[0];draw();status.textContent=best.r[0]+" — "+best.r[1]+" identificado no mapa. Use “Escolher radar” para carregar esta estação no radar individual.";}
+    if(best){
+      selected=best.r[0];
+      if(typeof window.selectRadarStation==="function"){
+        window.selectRadarStation(selected);
+        draw();
+        status.textContent=selected+" — "+best.r[1]+" carregado no radar individual.";
+      } else {
+        draw();
+        status.textContent=selected+" — "+best.r[1]+" selecionado no mapa; o seletor direto ainda não está disponível.";
+      }
+    }
   });
   if(typeof ResizeObserver!=="undefined")new ResizeObserver(draw).observe(canvas);else window.addEventListener("resize",draw);
   draw();
