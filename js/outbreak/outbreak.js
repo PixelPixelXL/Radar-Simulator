@@ -4,7 +4,7 @@
 (() => {
     "use strict";
 
-    const DEFAULT_BASE_URL = "/api/outbreak";
+    const DEFAULT_BASE_URL = "http://127.0.0.1:8000/api/outbreak";
     let baseUrl = DEFAULT_BASE_URL;
 
     async function request(path, options = {}) {
