@@ -196,3 +196,35 @@ select:disabled { opacity: 0.45; }
     #radar-toolbar { align-items: flex-start; flex-direction: column; }
     #btn-radar-picker { width: 100%; }
 }
+
+
+/* Painel do Outbreak Simulator */
+#outbreak-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 10px;
+    border: 1px solid #593333;
+    border-radius: 6px;
+    background: #1b1111;
+    font-size: 0.8rem;
+}
+#outbreak-panel h3 { color: #ff7777; font-size: 0.95rem; }
+#outbreak-panel label { color: #bbb; }
+#outbreak-panel input, #outbreak-panel select {
+    width: 100%;
+    padding: 6px;
+    color: #fff;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+.outbreak-description { color: #999; line-height: 1.35; }
+.outbreak-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.outbreak-actions button { padding: 7px 4px; }
+.outbreak-actions button:disabled { opacity: 0.5; cursor: wait; }
+#outbreak-status { color: #d8c2a0; line-height: 1.35; overflow-wrap: anywhere; }
+#outbreak-status.outbreak-error { color: #ff8b8b; }
+#outbreak-summary dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; }
+#outbreak-summary dt { color: #aaa; }
+#outbreak-summary dd { color: #fff; text-align: right; font-weight: bold; }
