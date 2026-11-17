@@ -241,7 +241,7 @@ def run_forecaster(day, seed=0, threshold=0.5, duration=30.0):
 
         for tor in day.tornadoes:
             if int(tor.t0) == t:
-                day.news.append((t, "Tornado %s (simulado) começou" % tor.ef)
+                day.news.append((t, "Tornado %s (simulado) começou" % tor.ef))
 
     return day
 
